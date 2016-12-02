@@ -1,28 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "matrix.h"
 int main() {
-    Matrix mat1 = buildMatrix(6, 2);
-    Matrix p = buildMatrix(1, 6);
-    
-    setValue(&p, 53000, 0, 0);setValue(&p, 53000, 0, 1);setValue(&p, 53000, 0, 2);setValue(&p, 53000, 0, 3);setValue(&p, 53000, 0, 4);setValue(&p, 53000, 0, 5);
+    Matrix m, p;
+    FILE *fp = fopen("ex1data1.txt", "r");
+    char line[100000];
+    float mArr[100000], pArr[100000];
+    int rowCount = 0, lineCount = 0, counter = 0;
+    float mVal = 0, pVal = 0;
+    while(fgets(line, sizeof(line), fp) != NULL) {
+        if(lineCount == 0) {
+            //Make sure the first line is the row count
+            sscanf(line, "%d", &rowCount);
+        }else {
+            sscanf(line, "%f,%f", &mVal, &pVal);
+            mArr[counter] = mVal;pArr[counter] = pVal;
+            counter++;
+        }
+        lineCount++;
+    }
+    counter--;
+    m = buildMatrix(rowCount, 2);
+    p = buildMatrix(1, rowCount);
+    for(int i = 0; i < m.rows; i++) {
+        for(int j = 0; j < m.cols; j++) {
+            if(j == 0) {
+                m.matrix[i][j] = 1;
+            }else {
+                m.matrix[i][j] = mArr[i];
+            }
+        }
+    }
+    for(int i = 0; i < p.rows; i++) {
+        for(int j = 0; j < p.cols; j++) {
+            p.matrix[i][j] = pArr[j];
+        }
+    }
 
-    setValue(&mat1, 1, 0, 0);setValue(&mat1, 1700, 0, 1);
-    setValue(&mat1, 1, 1, 0);setValue(&mat1, 2100, 1, 1);
-    setValue(&mat1, 1, 2, 0);setValue(&mat1, 1900, 2, 1);
-    setValue(&mat1, 1, 3, 0);setValue(&mat1, 1300, 3, 1);
-    setValue(&mat1, 1, 4, 0);setValue(&mat1, 1600, 4, 1);
-    setValue(&mat1, 1, 5, 0);setValue(&mat1, 2200, 5, 1);
-    //displayMatrix(mat1);
-    //Theta = (inv(X'*X)*X')*p
-    Matrix XT = transpose(mat1);
-    Matrix XI = invertMatrix(multByMatrix(XT, mat1));
+    Matrix XT = transpose(m);
+    Matrix XI = invertMatrix(multByMatrix(XT, m));
     Matrix XM = multByMatrix(XI, XT);
-    // displayMatrix(XM);
-    displayMatrix(transpose(p));
     Matrix Theta = multByMatrix(XM, transpose(p));
-    // displayMatrix(Theta);
+    displayMatrix(Theta);
 }
-
-//(2, 6) x (6, 1)

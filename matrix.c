@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include "matrix.h"
 
 /** Build and Display Methods
@@ -62,22 +64,19 @@ Matrix multByMatrix(Matrix mat1, Matrix mat2) {
     //the rows of the second matrix
     Matrix result;
     if(mat1.cols == mat2.rows) {
-        //Then the newly built array must be of 
+        //Then the newly built array must be of
         //the size (mat1.rows, mat2.cols)
-        printf("Choice 1\n");
         result = buildMatrix(mat1.rows, mat2.cols);
     }
     else if(mat1.cols == mat2.cols) {
-        printf("Choice 2\n");
         result = buildMatrix(mat2.rows, mat1.rows);
     } else {
-        printf("Choice 3\n");
-        result = buildMatrix(mat1.rows, mat1.cols);   
+        result = buildMatrix(mat1.rows, mat1.cols);
     }
     double product = 0;
     // double **matrix1 = mat1.matrix;
     // double **matrix2 = mat2.matrix;
-    //Perform the dot product 
+    //Perform the dot product
     for(int i = 0; i < mat1.rows; i++) {
         for(int j = 0; j < mat2.cols; j++) {
             for(int k = 0; k < mat1.cols; k++) {
@@ -111,7 +110,7 @@ double getDeterminate(Matrix m) {
              return (temp.matrix[0][0] * temp.matrix[1][1]) - (temp.matrix[0][1] * temp.matrix[1][0]);
          }
         //Otherwise if it is n*n...we do things the long way
-        //we will be using a method where we convert the 
+        //we will be using a method where we convert the
         //matrix into an upper triangle, and then the det
         //will simply be the multiplication of all diagonal
         //indexes ---Idea from Khan Academy
@@ -147,7 +146,6 @@ Matrix transpose(Matrix m) {
     int i, j;
     for(i=0; i<temp.cols; i++) {
         for(j=0; j<temp.rows; j++) {
-            printf("%f\n", m.matrix[i][j]);
             temp.matrix[j][i] = m.matrix[i][j];
         }
     }
@@ -194,7 +192,7 @@ Matrix minorOf(Matrix m) {
                     if(i == c || j == d) {
                         if(numOfIncludes >= detMatrix.rows) {
                             cl++;
-                        }          
+                        }
                     } else {
                         cl++;
                         numOfIncludes++;
