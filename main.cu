@@ -39,35 +39,44 @@ __global__ void multByValue(double val, double A[][N], double C[][N]) {
 }
 
 __global__ void coFactor(double A[][N], double C[][N]) {
-                  
+               int i = threadIdx.x;
+               int j = threadIdx.y;
+
+               if((j+i) % 2 == 1){
+                 C[i][j] = A[i][j] * -1;
+               }
+               else{
+                 C[i][j] = A[i][j];
+               }
 }
 int main(){
 
-double A[3][2] = {{1,2},{3,4},{5,6}};
+double A[N][N] = {{1,2},{3,4}};
 double B[N][N] = {{1,2},{3,4}};
-double C[3][2] = {{0,0},{0,0},{0,0}};
+double C[N][N] = {{0,0},{0,0}};
 
 double (*pA)[N], (*pB)[N], (*pC)[N];
 
-cudaMalloc((void**)&pA, (3*2)*sizeof(double));
+cudaMalloc((void**)&pA, (N*N)*sizeof(double));
 cudaMalloc((void**)&pB, (N*N)*sizeof(double));
-cudaMalloc((void**)&pC, (3*2)*sizeof(double));
+cudaMalloc((void**)&pC, (N*N)*sizeof(double));
 
-cudaMemcpy(pA, A, (3*2)*sizeof(double), cudaMemcpyHostToDevice);
+cudaMemcpy(pA, A, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
 cudaMemcpy(pB, B, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
-cudaMemcpy(pC, C, (3*2)*sizeof(double), cudaMemcpyHostToDevice);
+cudaMemcpy(pC, C, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
 
 int numBlocks = 1;
-dim3 threadsPerBlock(3,2);
+dim3 threadsPerBlock(N,N);
 //MatMult<<<numBlocks,threadsPerBlock>>>(pA, pB, pC,2);
 //MatTrans<<<numBlocks,threadsPerBlock>>>(pA, pC, 2, 2);
-multByValue<<<numBlocks,threadsPerBlock>>>(5, pA, pC);
+//multByValue<<<numBlocks,threadsPerBlock>>>(5, pA, pC);
+coFactor<<<numBlocks,threadsPerBlock>>>(pA, pC);
 
-cudaMemcpy(C, pC, (3*2)*sizeof(double), cudaMemcpyDeviceToHost);
+cudaMemcpy(C, pC, (N*N)*sizeof(double), cudaMemcpyDeviceToHost);
 
 int i, j; printf("C = \n");
-for(i=0;i<3;i++){
-    for(j=0;j<2;j++){
+for(i=0;i<N;i++){
+    for(j=0;j<N;j++){
         printf("%f ", C[i][j]);
     }
     printf("\n");
