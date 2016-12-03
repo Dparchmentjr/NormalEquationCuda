@@ -30,32 +30,44 @@ __global__ void MatTrans(double A[][N], double C[][N], int width, int height){
                C[i][j] = A[j][i];
 
 }
+
+__global__ void multByValue(double val, double A[][N], double C[][N]) {
+               int i = threadIdx.x;
+               int j = threadIdx.y;
+               C[i][j] = val * A[i][j];
+
+}
+
+__global__ void coFactor(double A[][N], double C[][N]) {
+                  
+}
 int main(){
 
-double A[N][N] = {{1,2},{3,4}};
+double A[3][2] = {{1,2},{3,4},{5,6}};
 double B[N][N] = {{1,2},{3,4}};
-double C[N][N] = {{0,0},{0,0}};
+double C[3][2] = {{0,0},{0,0},{0,0}};
 
 double (*pA)[N], (*pB)[N], (*pC)[N];
 
-cudaMalloc((void**)&pA, (N*N)*sizeof(double));
+cudaMalloc((void**)&pA, (3*2)*sizeof(double));
 cudaMalloc((void**)&pB, (N*N)*sizeof(double));
-cudaMalloc((void**)&pC, (N*N)*sizeof(double));
+cudaMalloc((void**)&pC, (3*2)*sizeof(double));
 
-cudaMemcpy(pA, A, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
+cudaMemcpy(pA, A, (3*2)*sizeof(double), cudaMemcpyHostToDevice);
 cudaMemcpy(pB, B, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
-cudaMemcpy(pC, C, (N*N)*sizeof(double), cudaMemcpyHostToDevice);
+cudaMemcpy(pC, C, (3*2)*sizeof(double), cudaMemcpyHostToDevice);
 
 int numBlocks = 1;
-dim3 threadsPerBlock(N,N);
+dim3 threadsPerBlock(3,2);
 //MatMult<<<numBlocks,threadsPerBlock>>>(pA, pB, pC,2);
-MatTrans<<<numBlocks,threadsPerBlock>>>(pA, pC, 2, 2);
+//MatTrans<<<numBlocks,threadsPerBlock>>>(pA, pC, 2, 2);
+multByValue<<<numBlocks,threadsPerBlock>>>(5, pA, pC);
 
-cudaMemcpy(C, pC, (N*N)*sizeof(double), cudaMemcpyDeviceToHost);
+cudaMemcpy(C, pC, (3*2)*sizeof(double), cudaMemcpyDeviceToHost);
 
 int i, j; printf("C = \n");
-for(i=0;i<N;i++){
-    for(j=0;j<N;j++){
+for(i=0;i<3;i++){
+    for(j=0;j<2;j++){
         printf("%f ", C[i][j]);
     }
     printf("\n");
